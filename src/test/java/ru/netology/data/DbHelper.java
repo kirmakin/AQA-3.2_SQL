@@ -7,13 +7,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DbHelper {
-    public static Connection getConnection() throws SQLException {
-        final Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://127.0.0.1:3306/app", "app", "pass");
-        return connection;
+    public static Connection getConnection() {
+        try {
+            final Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/app", "kirmakin", "pass");
+            return connection;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } return null;
     }
 
-    public static String getVerificationCode(String login) throws SQLException {
+    public static String getVerificationCode(String login) {
         String userId = null;
         val dataSQL = "SELECT id FROM users WHERE login = ?;";
         try (val conn = getConnection();
@@ -25,6 +28,8 @@ public class DbHelper {
                     userId = rs.getString("id");
                 }
             }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
         String code = null;
         val authCode = "SELECT code FROM auth_codes WHERE user_id = ? order by created desc limit 1;";
@@ -37,11 +42,13 @@ public class DbHelper {
                     code = rs.getString("code");
                 }
             }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
         return code;
     }
 
-    public String getStatusFromDb(String login) throws SQLException {
+    public static String getStatusFromDb(String login) {
         String statusSQL = "SELECT status FROM users WHERE login = ?;";
         String status = null;
         try (val conn = getConnection();
@@ -52,11 +59,13 @@ public class DbHelper {
                     status = rs.getString("status");
                 }
             }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
         return status;
     }
 
-    public static void cleanDb() throws SQLException {
+    public static void cleanDb() {
         String deleteCards = "DELETE FROM cards; ";
         String deleteAuthCodes = "DELETE FROM auth_codes; ";
         String deleteUsers = "DELETE FROM users; ";
@@ -68,6 +77,8 @@ public class DbHelper {
             deleteCardsStmt.executeUpdate(deleteCards);
             deleteAuthCodesStmt.executeUpdate(deleteAuthCodes);
             deleteUsersStmt.executeUpdate(deleteUsers);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
